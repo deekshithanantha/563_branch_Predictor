@@ -161,12 +161,12 @@ int main (int argc, char* argv[])
 
 
         table_size = 1 << params.M1 ;
-        cout<<table_size<<endl;
+        //cout<<table_size<<endl;
         v = vector<int>(table_size, 2);
         branch_hist_reg = 0;
 
-        cout<<v[3]<<endl;
-        cout<<branch_hist_reg<<endl;
+        //cout<<v[3]<<endl;
+        //cout<<branch_hist_reg<<endl;
 
         if(FP == NULL)
         {
@@ -229,7 +229,6 @@ int main (int argc, char* argv[])
                         }
 
 
-                    branch_hist_reg &= ~ (1 <<(params.N- 1));
                     break;
                     
                 case 1:
@@ -241,7 +240,6 @@ int main (int argc, char* argv[])
                             num_mispredictions++;
                             v[final_index]++;
                         }
-                    branch_hist_reg &= ~ (1 <<(params.N- 1));
                     break;
 
                 case 2:
@@ -254,7 +252,6 @@ int main (int argc, char* argv[])
                             num_mispredictions++;
                             v[final_index]--;
                         }
-                    branch_hist_reg |= (1 <<(params.N- 1));
                     break;
 
                 case 3:
@@ -266,8 +263,14 @@ int main (int argc, char* argv[])
                             num_mispredictions++;
                             v[final_index]--;
                         }
-                    branch_hist_reg |= (1 <<(params.N- 1));
                     break;
+            }
+
+            branch_hist_reg = branch_hist_reg >> 1;
+
+            if (outcome == 't')
+            {
+                branch_hist_reg |= (1 << (params.N - 1));
             }
 
         }
