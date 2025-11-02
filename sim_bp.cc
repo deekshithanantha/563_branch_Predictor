@@ -142,6 +142,18 @@ int main (int argc, char* argv[])
 
         }
 
+    cout<<"OUTPUT"<<endl;
+    cout<<" number of predictions:    "<<num_predictions<<endl;
+    cout<<" number of mispredictions: "<<num_mispredictions<<endl;
+
+    double misprediction_rate = (static_cast<double>(num_mispredictions) / num_predictions) * 100.0;
+    cout << fixed << setprecision(2);  // show 2 digits after decimal
+    cout << " misprediction rate:       " << misprediction_rate << "%" << endl;
+    cout << "FINAL BIMODAL CONTENTS"<<endl;
+    for ( int i = 0; i < table_size; ++i) 
+        {
+            std::cout<< i << "\t" << (int)v[i] << std::endl;
+        }
     }
 
     else if(strcmp(params.bp_name, "gshare") == 0)          // Gshare
@@ -275,6 +287,19 @@ int main (int argc, char* argv[])
 
         }
 
+    cout<<"OUTPUT"<<endl;
+    cout<<" number of predictions:    "<<num_predictions<<endl;
+    cout<<" number of mispredictions: "<<num_mispredictions<<endl;
+
+    double misprediction_rate = (static_cast<double>(num_mispredictions) / num_predictions) * 100.0;
+    cout << fixed << setprecision(2);  // show 2 digits after decimal
+    cout << " misprediction rate:       " << misprediction_rate << "%" << endl;
+    cout << "FINAL GSHARE CONTENTS"<<endl;
+    for ( int i = 0; i < table_size; ++i) 
+        {
+            std::cout<< i << "\t" << (int)v[i] << std::endl;
+        }
+
 
 
     }
@@ -308,11 +333,11 @@ int main (int argc, char* argv[])
     cout << fixed << setprecision(2);  // show 2 digits after decimal
     cout << " misprediction rate:       " << misprediction_rate << "%" << endl;
     cout << "FINAL BIMODAL CONTENTS"<<endl;
-    for ( int i = 0; i < table_size; ++i) {
+    for ( int i = 0; i < table_size; ++i) 
         {
             std::cout<< i << "\t" << (int)v[i] << std::endl;
         }
-    }
+    
 
     return 0;
 }
