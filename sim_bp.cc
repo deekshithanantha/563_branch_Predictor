@@ -32,6 +32,11 @@ int main (int argc, char* argv[])
 
     unsigned long num_predictions = 0; 
     unsigned long num_mispredictions = 0;
+    unsigned long table_size;
+    vector<int> v;
+    unsigned long branch_hist_reg;
+
+
     
     if (!(argc == 4 || argc == 5 || argc == 7))
     {
@@ -52,7 +57,93 @@ int main (int argc, char* argv[])
         params.M2       = strtoul(argv[2], NULL, 10);
         trace_file      = argv[3];
         printf("COMMAND\n%s %s %lu %s\n", argv[0], params.bp_name, params.M2, trace_file);
+
+        // Open trace_file in read mode
+        FP = fopen(trace_file, "r");
+        //cout<<params.M2<<endl;
+        table_size = 1 << params.M2 ;
+        //cout<<table_size<<endl;
+        v = vector<int>(table_size, 2);
+        //cout<<v[3]<<endl;
+        if(FP == NULL)
+        {
+            // Throw error and exit if fopen() failed
+            printf("Error: Unable to open file %s\n", trace_file);
+            exit(EXIT_FAILURE);
+        }
+        char str[2];
+        while(fscanf(FP, "%lx %s", &addr, str) != EOF)
+        {
+            outcome = str[0];
+            //if (outcome == 't')
+            //    printf("%lx %s\n", addr, "t");           // Print and test if file is read correctly
+            //else if (outcome == 'n')
+            //    printf("%lx %s\n", addr, "n");          // Print and test if file is read correctly
+            ///*************************************
+            //    Add branch predictor code here
+            //**************************************/
+
+            //cout<<addr<<endl;
+            unsigned long shifted_by_2 = addr >> 2;
+            unsigned long table_index = shifted_by_2 & (table_size -1);
+            //cout<<shifted_by_2<<endl;
+            //cout<<table_index<<endl;
+            //cout<<v[table_index]<<endl;
+            //cout<<"XXXXXXXXXXXXXX"<<endl;
+            num_predictions++;
+            switch (v[table_index])
+            {
+                case 0:
+                
+                    if (outcome =='n')
+                        {
+                            
+                        }
+                    else{
+                            num_mispredictions++;
+                            v[table_index]++;
+                        }
+                    break;
+                    
+                case 1:
+                    if (outcome =='n')
+                        {
+                            v[table_index]--;
+                        }
+                    else{
+                            num_mispredictions++;
+                            v[table_index]++;
+                        }
+                    break;
+
+                case 2:
+                    if (outcome =='t')
+                        {
+                            
+                            v[table_index]++;
+                        }
+                        else{
+                            num_mispredictions++;
+                            v[table_index]--;
+                        }
+                    break;
+
+                case 3:
+                        if (outcome =='t')
+                        {
+                            
+                        }
+                        else{
+                            num_mispredictions++;
+                            v[table_index]--;
+                        }
+                    break;
+            }
+
+        }
+
     }
+
     else if(strcmp(params.bp_name, "gshare") == 0)          // Gshare
     {
         if(argc != 5)
@@ -64,6 +155,124 @@ int main (int argc, char* argv[])
         params.N        = strtoul(argv[3], NULL, 10);
         trace_file      = argv[4];
         printf("COMMAND\n%s %s %lu %lu %s\n", argv[0], params.bp_name, params.M1, params.N, trace_file);
+
+        // Open trace_file in read mode
+        FP = fopen(trace_file, "r");
+
+
+        table_size = 1 << params.M1 ;
+        cout<<table_size<<endl;
+        v = vector<int>(table_size, 2);
+        branch_hist_reg = 0;
+
+        cout<<v[3]<<endl;
+        cout<<branch_hist_reg<<endl;
+
+        if(FP == NULL)
+        {
+            // Throw error and exit if fopen() failed
+            printf("Error: Unable to open file %s\n", trace_file);
+            exit(EXIT_FAILURE);
+        }
+        char str[2];
+        while(fscanf(FP, "%lx %s", &addr, str) != EOF)
+        {
+            outcome = str[0];
+            //if (outcome == 't')
+            //    printf("%lx %s\n", addr, "t");           // Print and test if file is read correctly
+            //else if (outcome == 'n')
+            //    printf("%lx %s\n", addr, "n");          // Print and test if file is read correctly
+            ///*************************************
+            //    Add branch predictor code here
+            //**************************************/
+
+            //cout<<addr<<endl;
+            unsigned long shifted_by_2 = addr >> 2;
+            unsigned long table_index = shifted_by_2 & (table_size -1);
+
+            //cout<<"shifted_by_2"<<endl;
+            //cout<<shifted_by_2<<endl;
+            //cout<<"table_index"<<endl;
+            //cout<<table_index<<endl;
+            //cout<<v[table_index]<<endl;
+            //cout<<"XXXXXXXXXXXXXX"<<endl;
+
+            unsigned long upper_bits = table_index >> (params.M1-params.N);
+            //cout<<"upper_bits"<<endl;
+            //cout<<upper_bits<<endl;
+            unsigned long lower_bits = table_index & ((1<< (params.M1-params.N))-1);
+            //cout<<"lower_bits"<<endl;
+            //cout<<lower_bits<<endl;
+            unsigned long before_cat = upper_bits ^ branch_hist_reg;
+            //cout<<"before_cat"<<endl;
+            //cout<<before_cat<<endl;
+
+            unsigned long final_index = (before_cat << (params.M1 - params.N)) | lower_bits;
+
+            //cout<<"final_index"<<endl;
+            //cout<<final_index<<endl;
+
+
+            //cout<<table_index<<endl;
+            num_predictions++;
+            switch (v[final_index])
+            {
+                case 0:
+                
+                    if (outcome =='n')
+                        {
+                            
+                        }
+                    else{
+                            num_mispredictions++;
+                            v[final_index]++;
+                        }
+
+
+                    branch_hist_reg &= ~ (1 <<(params.N- 1));
+                    break;
+                    
+                case 1:
+                    if (outcome =='n')
+                        {
+                            v[final_index]--;
+                        }
+                    else{
+                            num_mispredictions++;
+                            v[final_index]++;
+                        }
+                    branch_hist_reg &= ~ (1 <<(params.N- 1));
+                    break;
+
+                case 2:
+                    if (outcome =='t')
+                        {
+                            
+                            v[final_index]++;
+                        }
+                        else{
+                            num_mispredictions++;
+                            v[final_index]--;
+                        }
+                    branch_hist_reg |= (1 <<(params.N- 1));
+                    break;
+
+                case 3:
+                        if (outcome =='t')
+                        {
+                            
+                        }
+                        else{
+                            num_mispredictions++;
+                            v[final_index]--;
+                        }
+                    branch_hist_reg |= (1 <<(params.N- 1));
+                    break;
+            }
+
+        }
+
+
 
     }
     else if(strcmp(params.bp_name, "hybrid") == 0)          // Hybrid
@@ -87,104 +296,6 @@ int main (int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
     
-    // Open trace_file in read mode
-    FP = fopen(trace_file, "r");
-
-    //cout<<params.M2<<endl;
-    unsigned long table_size = 1 << params.M2 ;
-    //cout<<table_size<<endl;
-    vector<int> v(table_size, 2);
-    //cout<<v[3]<<endl;
-
-
-    
-    
-    if(FP == NULL)
-    {
-        // Throw error and exit if fopen() failed
-        printf("Error: Unable to open file %s\n", trace_file);
-        exit(EXIT_FAILURE);
-    }
-    
-    char str[2];
-    while(fscanf(FP, "%lx %s", &addr, str) != EOF)
-    {
-        
-        outcome = str[0];
-        //if (outcome == 't')
-        //    printf("%lx %s\n", addr, "t");           // Print and test if file is read correctly
-        //else if (outcome == 'n')
-        //    printf("%lx %s\n", addr, "n");          // Print and test if file is read correctly
-        ///*************************************
-        //    Add branch predictor code here
-        //**************************************/
-
-        //cout<<addr<<endl;
-
-        unsigned long shifted_by_2 = addr >> 2;
-        
-        unsigned long table_index = shifted_by_2 & (table_size -1);
-
-        //cout<<shifted_by_2<<endl;
-        //cout<<table_index<<endl;
-        //cout<<v[table_index]<<endl;
-        //cout<<"XXXXXXXXXXXXXX"<<endl;
-
-
-        
-        num_predictions++;
-
-        switch (v[table_index])
-        {
-            case 0:
-            
-                if (outcome =='n')
-                    {
-                        
-                    }
-                else{
-                        num_mispredictions++;
-                        v[table_index]++;
-                    }
-                break;
-
-                
-            case 1:
-                if (outcome =='n')
-                    {
-                        v[table_index]--;
-                    }
-                else{
-                        num_mispredictions++;
-                        v[table_index]++;
-                    }
-                break;
-
-            case 2:
-                if (outcome =='t')
-                    {
-                        
-                        v[table_index]++;
-                    }
-                    else{
-                        num_mispredictions++;
-                        v[table_index]--;
-                    }
-                break;
-
-            case 3:
-                    if (outcome =='t')
-                    {
-                        
-                    }
-                    else{
-                        num_mispredictions++;
-                        v[table_index]--;
-                    }
-                break;
-        }
-
-    }
 
     cout<<"OUTPUT"<<endl;
     cout<<" number of predictions:    "<<num_predictions<<endl;
