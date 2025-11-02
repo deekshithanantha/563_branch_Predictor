@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <iomanip> // for setprecision
 
 
 using namespace std;
@@ -89,11 +90,11 @@ int main (int argc, char* argv[])
     // Open trace_file in read mode
     FP = fopen(trace_file, "r");
 
-    cout<<params.M2<<endl;
+    //cout<<params.M2<<endl;
     unsigned long table_size = 1 << params.M2 ;
-    cout<<table_size<<endl;
+    //cout<<table_size<<endl;
     vector<int> v(table_size, 2);
-    cout<<v[3]<<endl;
+    //cout<<v[3]<<endl;
 
 
     
@@ -185,8 +186,19 @@ int main (int argc, char* argv[])
 
     }
 
-    cout <<num_predictions<<endl;
-    cout <<num_mispredictions<<endl;
+    cout<<"OUTPUT"<<endl;
+    cout<<" number of predictions:    "<<num_predictions<<endl;
+    cout<<" number of mispredictions: "<<num_mispredictions<<endl;
+
+    double misprediction_rate = (static_cast<double>(num_mispredictions) / num_predictions) * 100.0;
+    cout << fixed << setprecision(2);  // show 2 digits after decimal
+    cout << " misprediction rate:       " << misprediction_rate << "%" << endl;
+    cout << "FINAL BIMODAL CONTENTS"<<endl;
+    for ( int i = 0; i < table_size; ++i) {
+        {
+            std::cout<< i << "\t" << (int)v[i] << std::endl;
+        }
+    }
 
     return 0;
 }
