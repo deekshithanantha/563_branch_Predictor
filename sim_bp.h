@@ -4,6 +4,8 @@
 #include <vector>
 #include <iostream>
 #include <cmath>
+#include <iomanip> // for setprecision
+
 
 using namespace std;
 
@@ -65,6 +67,31 @@ void btb_walker(vector<int>& v, unsigned long table_index, char outcome, unsigne
                 }
             break;
     }
+}
+
+void final_printer( unsigned long num_predictions, unsigned long num_mispredictions,vector<int>& v,char* bp_name,unsigned long table_size){
+
+    cout<<"OUTPUT"<<endl;
+    cout<<" number of predictions:    "<<num_predictions<<endl;
+    cout<<" number of mispredictions: "<<num_mispredictions<<endl;
+
+    double misprediction_rate = (static_cast<double>(num_mispredictions) / num_predictions) * 100.0;
+    cout << fixed << setprecision(2);  // show 2 digits after decimal
+    cout << " misprediction rate:       " << misprediction_rate << "%" << endl;
+    if(strcmp(bp_name, "bimodal") == 0) {
+        cout << "FINAL BIMODAL CONTENTS"<<endl;
+    }
+    if(strcmp(bp_name, "gshare") == 0) {
+        cout << "FINAL GSHARE CONTENTS"<<endl;
+    }
+    if(strcmp(bp_name, "hybrid") == 0) {
+        cout << "FINAL CHOOSER CONTENTS"<<endl;
+    }
+
+    for ( int i = 0; i < table_size; ++i) 
+        {
+            std::cout<< i << "\t" << (int)v[i] << std::endl;
+        }
 }
 
 #endif

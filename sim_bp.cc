@@ -58,17 +58,15 @@ int main (int argc, char* argv[])
         trace_file      = argv[3];
         printf("COMMAND\n%s %s %lu %s\n", argv[0], params.bp_name, params.M2, trace_file);
 
-        // Open trace_file in read mode
+
         FP = fopen(trace_file, "r");
-        //cout<<params.M2<<endl;
         table_size = 1 << params.M2 ;
-        //cout<<table_size<<endl;
         v = vector<int>(table_size, 2);
-        //cout<<v[3]<<endl;
+
 
         if(FP == NULL)
         {
-            // Throw error and exit if fopen() failed
+
             printf("Error: Unable to open file %s\n", trace_file);
             exit(EXIT_FAILURE);
         }
@@ -81,19 +79,6 @@ int main (int argc, char* argv[])
             num_predictions++;
             btb_walker(v, table_index, outcome, num_mispredictions);
 
-        }
-
-    cout<<"OUTPUT"<<endl;
-    cout<<" number of predictions:    "<<num_predictions<<endl;
-    cout<<" number of mispredictions: "<<num_mispredictions<<endl;
-
-    double misprediction_rate = (static_cast<double>(num_mispredictions) / num_predictions) * 100.0;
-    cout << fixed << setprecision(2);  // show 2 digits after decimal
-    cout << " misprediction rate:       " << misprediction_rate << "%" << endl;
-    cout << "FINAL BIMODAL CONTENTS"<<endl;
-    for ( int i = 0; i < table_size; ++i) 
-        {
-            std::cout<< i << "\t" << (int)v[i] << std::endl;
         }
     }
 
@@ -148,23 +133,8 @@ int main (int argc, char* argv[])
             }
 
         }
-
-    cout<<"OUTPUT"<<endl;
-    cout<<" number of predictions:    "<<num_predictions<<endl;
-    cout<<" number of mispredictions: "<<num_mispredictions<<endl;
-
-    double misprediction_rate = (static_cast<double>(num_mispredictions) / num_predictions) * 100.0;
-    cout << fixed << setprecision(2);  // show 2 digits after decimal
-    cout << " misprediction rate:       " << misprediction_rate << "%" << endl;
-    cout << "FINAL GSHARE CONTENTS"<<endl;
-    for ( int i = 0; i < table_size; ++i) 
-        {
-            std::cout<< i << "\t" << (int)v[i] << std::endl;
-        }
-
-
-
     }
+
     else if(strcmp(params.bp_name, "hybrid") == 0)          // Hybrid
     {
         if(argc != 7)
@@ -186,21 +156,8 @@ int main (int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
     
+final_printer(num_predictions,num_mispredictions,v,params.bp_name,table_size);
 
-    //cout<<"OUTPUT"<<endl;
-    //cout<<" number of predictions:    "<<num_predictions<<endl;
-    //cout<<" number of mispredictions: "<<num_mispredictions<<endl;
-//
-    //double misprediction_rate = (static_cast<double>(num_mispredictions) / num_predictions) * 100.0;
-    //cout << fixed << setprecision(2);  // show 2 digits after decimal
-    //cout << " misprediction rate:       " << misprediction_rate << "%" << endl;
-    //cout << "FINAL BIMODAL CONTENTS"<<endl;
-    //for ( int i = 0; i < table_size; ++i) 
-    //    {
-    //        std::cout<< i << "\t" << (int)v[i] << std::endl;
-    //    }
-    //
-//
     return 0;
 }
 
