@@ -81,6 +81,7 @@ int main (int argc, char* argv[])
             btb_walker(v, table_index, outcome, num_mispredictions);
 
         }
+        final_printer_bi_gs(num_predictions,num_mispredictions,v,params.bp_name,table_size);
     }
 
     else if(strcmp(params.bp_name, "gshare") == 0)          // Gshare
@@ -133,6 +134,7 @@ int main (int argc, char* argv[])
             }
 
         }
+        final_printer_bi_gs(num_predictions,num_mispredictions,v,params.bp_name,table_size);
     }
 
     else if(strcmp(params.bp_name, "hybrid") == 0)          // Hybrid
@@ -149,6 +151,117 @@ int main (int argc, char* argv[])
         trace_file      = argv[6];
         printf("COMMAND\n%s %s %lu %lu %lu %lu %s\n", argv[0], params.bp_name, params.K, params.M1, params.N, params.M2, trace_file);
 
+
+        unsigned long bimodal_table_size = 1 << params.M2;
+        vector<int> bimodal_table(bimodal_table_size, 2);
+        char bimodal_char;
+
+
+        unsigned long gshare_table_size = 1 << params.M1;
+        vector<int> gshare_table(gshare_table_size, 2);
+        char gshare_char;
+        branch_hist_reg = 0;
+
+
+        unsigned long table_size = 1 << params.K; 
+        v = vector<int>(table_size, 1); 
+        
+
+        FP = fopen(trace_file, "r");
+
+        char str[2];
+        while(fscanf(FP, "%lx %s", &addr, str) != EOF)
+        {
+            outcome = str[0];
+            num_predictions++;
+            
+
+            // first bimodal value
+            unsigned long bimodal_index = table_index_caluc(addr, bimodal_table_size);
+
+            if (bimodal_table[bimodal_index] >= 2){
+                bimodal_char = 't';
+            } 
+            else{
+                bimodal_char = 'n';
+            }
+
+
+            // second gshare value
+            unsigned long gshare_m_bits = table_index_caluc(addr, gshare_table_size);
+            unsigned long gshare_upper = gshare_m_bits >> (params.M1 - params.N);
+            unsigned long gshare_lower = gshare_m_bits & ((1 << (params.M1 - params.N)) - 1);
+            unsigned long gshare_xor = gshare_upper ^ branch_hist_reg;
+            unsigned long gshare_index = (gshare_xor << (params.M1 - params.N)) | gshare_lower;
+
+            
+            if (gshare_table[gshare_index] >= 2){
+                gshare_char = 't';
+            } 
+            else{
+                gshare_char = 'n';
+            }
+            
+
+            unsigned long chooser_index = table_index_caluc(addr, table_size); 
+            int chooser_counter = v[chooser_index];
+
+            
+            char final_predic_char;
+
+            if (chooser_counter >= 2) {
+
+                final_predic_char = gshare_char;
+            } 
+            else {
+                final_predic_char = bimodal_char;
+            }
+
+
+            if (final_predic_char != outcome) {
+                num_mispredictions++;
+            }
+
+            //now gshare or bimodal
+            if (chooser_counter >= 2) { 
+                //unsigned long g_counter = gshare_table[gshare_index]; 
+                //k_table_trainer(gshare_table, g_counter, outcome); 
+                k_table_trainer(gshare_table, gshare_index, outcome);
+            }
+            else { 
+                //unsigned long b_counter = bimodal_table[bimodal_index];
+                //k_table_trainer(bimodal_table, b_counter, outcome); 
+
+                k_table_trainer(bimodal_table, bimodal_index, outcome);
+
+            }
+
+
+            branch_hist_reg = branch_hist_reg >> 1;
+            if (outcome == 't') {
+                branch_hist_reg |= (1 << (params.N - 1));
+            }
+
+            bool gshare_correct = (gshare_char == outcome);
+            bool bimodal_correct = (bimodal_char == outcome);
+
+            
+
+            if ((gshare_char == outcome) && !(bimodal_char == outcome)) {
+                if (v[chooser_index] < 3) 
+                {
+                    v[chooser_index]++;
+                }
+            } 
+            
+            else if (!(gshare_char == outcome) && (bimodal_char == outcome)) {
+                if (v[chooser_index] > 0) 
+                {
+                    v[chooser_index]--;
+                }
+            }
+        }
+    
     }
     else
     {
@@ -156,9 +269,6 @@ int main (int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
     
-final_printer(num_predictions,num_mispredictions,v,params.bp_name,table_size);
 
     return 0;
 }
-
-

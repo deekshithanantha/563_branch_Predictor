@@ -69,7 +69,7 @@ void btb_walker(vector<int>& v, unsigned long table_index, char outcome, unsigne
     }
 }
 
-void final_printer( unsigned long num_predictions, unsigned long num_mispredictions,vector<int>& v,char* bp_name,unsigned long table_size){
+void final_printer_bi_gs( unsigned long num_predictions, unsigned long num_mispredictions,vector<int>& v,char* bp_name,unsigned long table_size){
 
     cout<<"OUTPUT"<<endl;
     cout<<" number of predictions:    "<<num_predictions<<endl;
@@ -101,7 +101,18 @@ unsigned long table_index_caluc(unsigned long int addr,unsigned long table_size)
     return table_index;
 }
 
+void k_table_trainer(vector<int>& trainer_table, unsigned long trainer_index, char outcome){
+    
+    int trainer_counter = trainer_table[trainer_index];
 
+    if (outcome == 't') {
+        if (trainer_counter < 3) trainer_table[trainer_index]++;
+    } 
+
+    else {
+        if (trainer_counter > 0) trainer_table[trainer_index]--;
+    }
+}
 
 #endif
 
