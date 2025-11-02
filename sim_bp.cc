@@ -2,6 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include "sim_bp.h"
+#include <iostream>
+#include <vector>
+#include <cmath>
+
+
+using namespace std;
+
 
 /*  argc holds the number of command line arguments
     argv[] holds the commands themselves
@@ -21,6 +28,9 @@ int main (int argc, char* argv[])
     bp_params params;       // look at sim_bp.h header file for the the definition of struct bp_params
     char outcome;           // Variable holds branch outcome
     unsigned long int addr; // Variable holds the address read from input file
+
+    unsigned long num_predictions = 0; 
+    unsigned long num_mispredictions = 0;
     
     if (!(argc == 4 || argc == 5 || argc == 7))
     {
@@ -78,6 +88,16 @@ int main (int argc, char* argv[])
     
     // Open trace_file in read mode
     FP = fopen(trace_file, "r");
+
+    cout<<params.M2<<endl;
+    unsigned long table_size = 1 << params.M2 ;
+    cout<<table_size<<endl;
+    vector<int> v(table_size, 2);
+    cout<<v[3]<<endl;
+
+
+    
+    
     if(FP == NULL)
     {
         // Throw error and exit if fopen() failed
@@ -90,13 +110,85 @@ int main (int argc, char* argv[])
     {
         
         outcome = str[0];
-        if (outcome == 't')
-            printf("%lx %s\n", addr, "t");           // Print and test if file is read correctly
-        else if (outcome == 'n')
-            printf("%lx %s\n", addr, "n");          // Print and test if file is read correctly
-        /*************************************
-            Add branch predictor code here
-        **************************************/
+        //if (outcome == 't')
+        //    printf("%lx %s\n", addr, "t");           // Print and test if file is read correctly
+        //else if (outcome == 'n')
+        //    printf("%lx %s\n", addr, "n");          // Print and test if file is read correctly
+        ///*************************************
+        //    Add branch predictor code here
+        //**************************************/
+
+        //cout<<addr<<endl;
+
+        unsigned long shifted_by_2 = addr >> 2;
+        
+        unsigned long table_index = shifted_by_2 & (table_size -1);
+
+        //cout<<shifted_by_2<<endl;
+        //cout<<table_index<<endl;
+        //cout<<v[table_index]<<endl;
+        //cout<<"XXXXXXXXXXXXXX"<<endl;
+
+
+        
+        
+        if ((v[table_index] == 0) && outcome =='n')
+        {
+            num_predictions++;
+            continue;
+        }
+        else{
+            num_mispredictions++;
+cout<<" missed"<<endl;
+            v[table_index]++;
+            continue;
+        }
+
+        if ((v[table_index] == 1) && outcome =='n')
+        {
+            num_predictions++;
+            v[table_index]--;
+            continue;
+        }
+        else{
+            num_mispredictions++;
+cout<<" missed"<<endl;
+            v[table_index]++;
+            continue;
+        }
+        
+        if ((v[table_index] == 2) && outcome == 't')
+        {
+            num_predictions++;
+            v[table_index]++;
+            continue;
+        }
+        else{
+            num_mispredictions++;
+cout<<" missed"<<endl;
+            v[table_index]--;
+            continue;
+        }
+        
+        if ((v[table_index] == 3) && outcome == 't')
+        {
+            num_predictions++;
+            continue;
+        }
+        else{
+            num_mispredictions++;
+cout<<" missed"<<endl;
+            v[table_index]--;
+            continue;
+        }
+
+
     }
+
+    cout <<num_predictions<<endl;
+    cout <<num_mispredictions<<endl;
+
     return 0;
 }
+
+

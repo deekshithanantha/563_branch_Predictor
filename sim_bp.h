@@ -1,5 +1,10 @@
 #ifndef SIM_BP_H
 #define SIM_BP_H
+#include <stdio.h>
+
+#include <iostream>
+
+using namespace std;
 
 typedef struct bp_params{
     unsigned long int K;
@@ -11,4 +16,7 @@ typedef struct bp_params{
 
 // Put additional data structures here as per your requirement
 
+
 #endif
+
+
