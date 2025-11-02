@@ -131,57 +131,57 @@ int main (int argc, char* argv[])
 
 
         
-        
-        if ((v[table_index] == 0) && outcome =='n')
-        {
-            num_predictions++;
-            continue;
-        }
-        else{
-            num_mispredictions++;
-cout<<" missed"<<endl;
-            v[table_index]++;
-            continue;
-        }
+        num_predictions++;
 
-        if ((v[table_index] == 1) && outcome =='n')
+        switch (v[table_index])
         {
-            num_predictions++;
-            v[table_index]--;
-            continue;
-        }
-        else{
-            num_mispredictions++;
-cout<<" missed"<<endl;
-            v[table_index]++;
-            continue;
-        }
-        
-        if ((v[table_index] == 2) && outcome == 't')
-        {
-            num_predictions++;
-            v[table_index]++;
-            continue;
-        }
-        else{
-            num_mispredictions++;
-cout<<" missed"<<endl;
-            v[table_index]--;
-            continue;
-        }
-        
-        if ((v[table_index] == 3) && outcome == 't')
-        {
-            num_predictions++;
-            continue;
-        }
-        else{
-            num_mispredictions++;
-cout<<" missed"<<endl;
-            v[table_index]--;
-            continue;
-        }
+            case 0:
+            
+                if (outcome =='n')
+                    {
+                        
+                    }
+                else{
+                        num_mispredictions++;
+                        v[table_index]++;
+                    }
+                break;
 
+                
+            case 1:
+                if (outcome =='n')
+                    {
+                        v[table_index]--;
+                    }
+                else{
+                        num_mispredictions++;
+                        v[table_index]++;
+                    }
+                break;
+
+            case 2:
+                if (outcome =='t')
+                    {
+                        
+                        v[table_index]++;
+                    }
+                    else{
+                        num_mispredictions++;
+                        v[table_index]--;
+                    }
+                break;
+
+            case 3:
+                    if (outcome =='t')
+                    {
+                        
+                    }
+                    else{
+                        num_mispredictions++;
+                        v[table_index]--;
+                    }
+                break;
+        }
 
     }
 
