@@ -94,6 +94,15 @@ void final_printer( unsigned long num_predictions, unsigned long num_mispredicti
         }
 }
 
+unsigned long table_index_caluc(unsigned long int addr,unsigned long table_size){
+    unsigned long shifted_by_2 = addr >> 2;
+    unsigned long table_index = shifted_by_2 & (table_size -1);
+
+    return table_index;
+}
+
+
+
 #endif
 
 

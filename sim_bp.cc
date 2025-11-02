@@ -60,6 +60,7 @@ int main (int argc, char* argv[])
 
 
         FP = fopen(trace_file, "r");
+
         table_size = 1 << params.M2 ;
         v = vector<int>(table_size, 2);
 
@@ -74,8 +75,8 @@ int main (int argc, char* argv[])
         while(fscanf(FP, "%lx %s", &addr, str) != EOF)
         {
             outcome = str[0];
-            unsigned long shifted_by_2 = addr >> 2;
-            unsigned long table_index = shifted_by_2 & (table_size -1);
+
+            unsigned long table_index = table_index_caluc(addr,table_size);
             num_predictions++;
             btb_walker(v, table_index, outcome, num_mispredictions);
 
@@ -94,7 +95,6 @@ int main (int argc, char* argv[])
         trace_file      = argv[4];
         printf("COMMAND\n%s %s %lu %lu %s\n", argv[0], params.bp_name, params.M1, params.N, trace_file);
 
-        // Open trace_file in read mode
         FP = fopen(trace_file, "r");
 
         table_size = 1 << params.M1 ;
@@ -112,8 +112,9 @@ int main (int argc, char* argv[])
         while(fscanf(FP, "%lx %s", &addr, str) != EOF)
         {
             outcome = str[0];
-            unsigned long shifted_by_2 = addr >> 2;
-            unsigned long table_index = shifted_by_2 & (table_size -1);
+
+
+            unsigned long table_index = table_index_caluc(addr,table_size);
 
 
             unsigned long upper_bits = table_index >> (params.M1-params.N);
@@ -121,7 +122,6 @@ int main (int argc, char* argv[])
             unsigned long before_cat = upper_bits ^ branch_hist_reg;
             unsigned long final_index = (before_cat << (params.M1 - params.N)) | lower_bits;
 
-            //cout<<table_index<<endl;
             num_predictions++;
 
             btb_walker(v, final_index, outcome, num_mispredictions);
